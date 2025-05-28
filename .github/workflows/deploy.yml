@@ -7,12 +7,14 @@
     source: 'index.html'
     target: '/home/ubuntu/deploy-temp/'
 
-- name: Move build to /var/www/html using sudo
+- name: Move to /var/www/html with sudo
   uses: appleboy/ssh-action@master
   with:
     host: ${{ secrets.EC2_HOST }}
     username: ubuntu
     key: ${{ secrets.EC2_SSH_KEY }}
     script: |
+      sudo mkdir -p /var/www/html
+      sudo mkdir -p /home/ubuntu/deploy-temp
       sudo rm -rf /var/www/html/*
       sudo mv /home/ubuntu/deploy-temp/* /var/www/html/
