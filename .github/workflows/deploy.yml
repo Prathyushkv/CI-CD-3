@@ -1,21 +1,26 @@
-- name: Upload build to staging path
-  uses: appleboy/scp-action@v0.1.4
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ubuntu
-    key: ${{ secrets.EC2_SSH_KEY }}
-    source: 'index.html'
-    target: '/home/ubuntu/deploy-temp/'
-
-- name: Move build to /var/www/html using sudo
-  uses: appleboy/ssh-action@master
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ubuntu
-    key: ${{ secrets.EC2_SSH_KEY }}
-    script: |
-      sudo mkdir -p /var/www/html/
-      sudo rm -rf /var/www/html/*
-      sudo mv /home/ubuntu/deploy-temp/* /var/www/html/
-      sudo rm -rf /home/ubuntu/deploy-temp/*
-      sudo chown -R www-data:www-data /var/www/html/
+name: Deploy to Server
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: List files in workspace
+        run: ls -la
+      - name: Create target directory on server
+        run: ssh -i ${{ secrets.KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p /var/www/html/"
+      - name: SCP files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          source: .
+          target: /var/www/html/
+          debug: true
+      - name: Check tar file
+        run: ls -l /tmp/*.tar.gz || echo "No tar file found"
