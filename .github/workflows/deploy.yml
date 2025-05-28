@@ -9,10 +9,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: List files in workspace
+      - name: List workspace files
         run: ls -la
-      - name: Create target directory on server
-        run: ssh -i ${{ secrets.KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p /var/www/html/"
+      - name: Create target directory
+        run: ssh -o StrictHostKeyChecking=no -i ${{ secrets.KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "mkdir -p /var/www/html/"
       - name: SCP files to server
         uses: appleboy/scp-action@v0.1.7
         with:
