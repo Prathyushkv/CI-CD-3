@@ -7,7 +7,7 @@
     source: 'index.html'
     target: '/home/ubuntu/deploy-temp/'
 
-- name: Move to /var/www/html with sudo
+    - name: Move to /var/www/html with sudo
   uses: appleboy/ssh-action@master
   with:
     host: ${{ secrets.EC2_HOST }}
