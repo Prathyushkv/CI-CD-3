@@ -1,22 +1,18 @@
-name: Deploy HTML to EC2
+- name: Upload build to staging path
+  uses: appleboy/scp-action@v0.1.4
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_SSH_KEY }}
+    source: 'index.html'
+    target: '/home/ubuntu/deploy-temp/'
 
-on:
-  push:
-    branches: ['main']
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy index.html to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: 'index.html'
-          target: '/var/www/html/'
+- name: Move build to /var/www/html using sudo
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_SSH_KEY }}
+    script: |
+      sudo rm -rf /var/www/html/*
+      sudo mv /home/ubuntu/deploy-temp/* /var/www/html/
